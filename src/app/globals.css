@@ -1,0 +1,229 @@
+@import "tailwindcss";
+
+/* AG Grid Styles */
+@import "ag-grid-community/styles/ag-grid.css";
+@import "ag-grid-community/styles/ag-theme-alpine.css";
+@import "ag-grid-community/styles/ag-theme-material.css";
+
+/* Custom AG Grid Overrides */
+.ag-theme-alpine {
+  --ag-header-background-color: #f9fafb;
+  --ag-odd-row-background-color: #f3f4f6;
+  --ag-header-foreground-color: #111827;
+  --ag-font-size: 14px;
+  --ag-font-family: inherit;
+}
+
+.ag-theme-alpine .ag-header-cell {
+  font-weight: 600;
+}
+
+.ag-theme-alpine .ag-cell {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+/* Material Theme Overrides */
+.ag-theme-material {
+  --ag-header-background-color: #f8fafc;
+  --ag-header-foreground-color: #475569;
+  --ag-header-column-separator-display: block;
+  --ag-header-column-separator-color: #e2e8f0;
+  --ag-header-column-separator-height: 50%;
+  --ag-header-column-resize-handle-color: #94a3b8;
+
+  --ag-font-size: 14px;
+  --ag-font-family: "Inter", system-ui, -apple-system, sans-serif;
+
+  --ag-border-color: #e2e8f0;
+  --ag-row-border-color: #f1f5f9;
+
+  --ag-row-hover-color: #eff6ff;
+  --ag-selected-row-background-color: #f0f9ff;
+
+  --ag-input-focus-border-color: #3b82f6;
+  --ag-range-selection-border-color: #3b82f6;
+  --ag-range-selection-background-color: rgba(59, 130, 246, 0.1);
+
+  --ag-checkbox-checked-color: #3b82f6;
+  --ag-checkbox-unchecked-color: #94a3b8;
+
+  --ag-cell-horizontal-padding: 16px;
+}
+
+.ag-theme-material .ag-header-cell {
+  font-weight: 600;
+  text-transform: none;
+}
+
+.ag-theme-material .ag-header-cell-custom {
+  color: #1e293b;
+  font-size: 13px;
+}
+
+.ag-theme-material .ag-row {
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: #f1f5f9;
+}
+
+.ag-theme-material .ag-cell {
+  line-height: 1.5;
+}
+
+/* Hücre içeriği taşma düzeltmesi */
+.ag-theme-material .ag-cell-wrapper {
+  width: 100%;
+}
+
+.ag-theme-material .ag-cell-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Başlık sütunu için özel stil */
+.ag-theme-material .line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 2.8em; /* 2 satırın maksimum yüksekliği */
+}
+
+.ag-theme-material .action-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ag-theme-material .action-header {
+  display: flex;
+  justify-content: center;
+}
+
+.ag-theme-material .ag-paging-panel {
+  border-top: 1px solid #e2e8f0;
+  padding: 12px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.ag-theme-material .ag-paging-button {
+  color: #3b82f6;
+  cursor: pointer;
+}
+
+.ag-theme-material .ag-filter-toolpanel-header {
+  background-color: #f8fafc;
+}
+
+.ag-theme-material .ag-filter-apply-panel {
+  background-color: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  padding: 8px;
+}
+
+.ag-theme-material .ag-standard-button {
+  background-color: #3b82f6;
+  color: white;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 12px;
+  border: none;
+}
+
+.ag-theme-material .ag-standard-button:hover {
+  background-color: #2563eb;
+}
+
+/* Team Members List Styles */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+/* Line clamp utilities for text truncation */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Backdrop blur for glass effect */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Focus styles for accessibility */
+.focus-ring:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Hover effects for interactive elements */
+.hover-lift {
+  transition: transform 0.2s ease-in-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

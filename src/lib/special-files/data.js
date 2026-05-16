@@ -11,11 +11,34 @@ export const getAllSpecialFile = async () => {
 };
 
 export const getSpecialFileById = async (id) => {
-  // Admin endpoint kullanılıyor — status/tier filtre yok,
-  // draft/pending dahil tüm özel dosyalar düzenlenebilir.
-  const res = await fetchInstance(`/special-files/admin/${id}`, {
+  // Önce admin endpoint'i dene (status/tier filtre yok)
+  const adminRes = await fetchInstance(`/special-files/admin/${id}`, {
     method: "GET",
   });
 
-  return res;
+  // Başarılıysa admin cevabını döndür
+  if (adminRes && adminRes._id) {
+    return adminRes;
+  }
+
+  console.warn(
+    "[special-files] admin endpoint başarısız, public endpoint deneniyor:",
+    adminRes,
+  );
+
+  // Fallback: public endpoint (eski backend ile uyumluluk için)
+  const publicRes = await fetchInstance(`/special-files/${id}`, {
+    method: "GET",
+  });
+
+  if (publicRes && publicRes._id) {
+    return publicRes;
+  }
+
+  console.error(
+    "[special-files] public endpoint de başarısız:",
+    publicRes,
+  );
+
+  return publicRes;
 };

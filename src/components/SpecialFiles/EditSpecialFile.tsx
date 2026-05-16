@@ -96,7 +96,9 @@ export default function EditSpecialFile({ data, authors }: Props) {
     status: data.status || "publish",
     accessTier: data.accessTier || "FREE",
     contentTr:
-      data.translations?.tr?.content ||
+      (typeof data.translations?.tr?.content === "string"
+        ? data.translations?.tr?.content
+        : (data.translations?.tr?.content as any)?.html) ||
       (typeof data.content === "string" ? data.content : data.content?.html) ||
       "",
     coverImage: null as File | null,

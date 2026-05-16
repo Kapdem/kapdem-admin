@@ -11,7 +11,9 @@ export const getAllSpecialFile = async () => {
 };
 
 export const getSpecialFileById = async (id) => {
-  const res = await fetchInstance(`/special-files/${id}`, {
+  // Admin endpoint kullanılıyor — status/tier filtre yok,
+  // draft/pending dahil tüm özel dosyalar düzenlenebilir.
+  const res = await fetchInstance(`/special-files/admin/${id}`, {
     method: "GET",
   });
 

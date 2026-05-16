@@ -61,6 +61,25 @@ export default function EditSpecialFile({ data, authors }: Props) {
     data.coverImage || null
   );
 
+  // Mevcut yazar listede yoksa (AUTHOR tipi değilse) başa ekle
+  const allAuthors: Author[] = (() => {
+    if (!data.author?._id) return authors || [];
+    const currentAuthorId = String(data.author._id);
+    const alreadyInList = (authors || []).some(
+      (a) => String(a.id) === currentAuthorId
+    );
+    if (alreadyInList) return authors || [];
+    const currentAuthor: Author = {
+      id: currentAuthorId,
+      fullName:
+        data.author.fullName ||
+        `${data.author.firstName || ""} ${data.author.lastName || ""}`.trim(),
+      firstName: data.author.firstName,
+      lastName: data.author.lastName,
+    };
+    return [currentAuthor, ...(authors || [])];
+  })();
+
   // Slug otomatik üretici
   const generateSlug = (title: string, isEnglish: boolean = false) => {
     let slug = title
@@ -291,8 +310,8 @@ export default function EditSpecialFile({ data, authors }: Props) {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Yazar seçin (opsiyonel)</option>
-                {authors && authors.length > 0 ? (
-                  authors.map((author: Author) => (
+                {allAuthors.length > 0 ? (
+                  allAuthors.map((author: Author) => (
                     <option key={author.id} value={author.id}>
                       {author.fullName ||
                         `${author.firstName} ${author.lastName}`}
@@ -307,7 +326,7 @@ export default function EditSpecialFile({ data, authors }: Props) {
               {values.authorId && (
                 <div className="text-xs text-gray-500 mt-1">
                   Seçili yazar:{" "}
-                  {authors?.find((a: Author) => a.id === values.authorId)
+                  {allAuthors.find((a: Author) => a.id === values.authorId)
                     ?.fullName || "-"}
                 </div>
               )}

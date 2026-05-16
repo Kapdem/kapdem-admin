@@ -1,17 +1,18 @@
 "use client";
-import React from "react";
+import React, { use } from "react";
 import { useRouter } from "next/navigation";
 import TeamMemberEditForm from "@/components/Ekip/TeamMemberEditForm";
 import Link from "next/link";
 import { ArrowLeftIcon } from "lucide-react";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function EditTeamMemberPage({ params }: PageProps) {
+  const { id } = use(params);
   const router = useRouter();
 
   const handleSuccess = () => {
@@ -40,7 +41,7 @@ export default function EditTeamMemberPage({ params }: PageProps) {
 
         {/* Edit Form */}
         <TeamMemberEditForm
-          memberId={params.id}
+          memberId={id}
           onSuccess={handleSuccess}
           onCancel={handleCancel}
         />

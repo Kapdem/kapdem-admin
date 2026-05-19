@@ -218,7 +218,7 @@ export default function ContentEditorWrapper({ value, onChange = () => {} }) {
     ],
     extraPlugins: [uploadPlugin],
     fontSize: {
-      options: [10, 12, 14, 18, 20, 22],
+      options: [10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 32, 36, 40, 48],
       supportAllValues: true,
     },
     heading: {

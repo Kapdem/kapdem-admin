@@ -6,7 +6,6 @@ import React from "react";
 export default async function page({ params }: any) {
   const awaitedParams = await params;
   const res = await getEventById(awaitedParams.id);
-  console.log(res);
 
   // Translations'dan title ve description al
   const title = res.translations?.tr?.title || res.title || "Etkinlik";

@@ -99,7 +99,6 @@ const accessTierMap: Record<
 };
 
 export default function PaperGrid({ posts }: PaperGridProps) {
-  console.log("PaperGrid render oldu, posts:", posts);
   // Veri kontrolü
 
   // Geçerli bir dizi değilse boş dizi kullan

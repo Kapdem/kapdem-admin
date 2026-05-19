@@ -51,8 +51,41 @@ const NoSSRCKEditor: React.FC<NoSSRCKEditorProps> = ({ data, onChange }) => {
           "redo",
         ],
         fontSize: {
-          options: [10, 12, 14, 18, 20, 22],
+          options: [10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 32, 36, 40, 48],
           supportAllValues: true,
+        },
+        heading: {
+          options: [
+            {
+              model: "paragraph",
+              title: "Paragraf",
+              class: "ck-heading_paragraph",
+            },
+            {
+              model: "heading1",
+              view: "h1",
+              title: "Başlık 1",
+              class: "ck-heading_heading1",
+            },
+            {
+              model: "heading2",
+              view: "h2",
+              title: "Başlık 2",
+              class: "ck-heading_heading2",
+            },
+            {
+              model: "heading3",
+              view: "h3",
+              title: "Başlık 3",
+              class: "ck-heading_heading3",
+            },
+            {
+              model: "heading4",
+              view: "h4",
+              title: "Başlık 4",
+              class: "ck-heading_heading4",
+            },
+          ],
         },
       }}
     />

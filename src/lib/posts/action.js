@@ -166,7 +166,6 @@ export const makeFeaturePost = async (id, isFeatured) => {
       },
       body: JSON.stringify({ isFeatured }),
     });
-    console.log("Feature status updated:", response);
 
     return response;
   } catch (error) {
@@ -199,7 +198,6 @@ export const makeEditorsPickPost = async (id, isEditorsPick) => {
       },
       body: JSON.stringify({ isEditorsPick }),
     });
-    console.log("Editor's Pick status updated:", response);
 
     return response;
   } catch (error) {

@@ -51,12 +51,12 @@
   font-weight: revert;
 }
 
-.ck-content > h1 { font-size: 2em; font-weight: 700; margin-top: 0.67em; margin-bottom: 0.67em; }
-.ck-content > h2 { font-size: 1.5em; font-weight: 700; margin-top: 0.83em; margin-bottom: 0.83em; }
-.ck-content > h3 { font-size: 1.25em; font-weight: 600; margin-top: 1em; margin-bottom: 1em; }
-.ck-content > h4 { font-size: 1.1em; font-weight: 600; margin-top: 1.33em; margin-bottom: 1.33em; }
-.ck-content > h5 { font-size: 1em; font-weight: 600; margin-top: 1.67em; margin-bottom: 1.67em; }
-.ck-content > h6 { font-size: 0.9em; font-weight: 600; margin-top: 2.33em; margin-bottom: 2.33em; }
+.ck-content > h1 { font-size: 2.75em; font-weight: 700; margin-top: 0.67em; margin-bottom: 0.67em; }
+.ck-content > h2 { font-size: 2.25em; font-weight: 700; margin-top: 0.83em; margin-bottom: 0.83em; }
+.ck-content > h3 { font-size: 1.85em; font-weight: 700; margin-top: 1em; margin-bottom: 1em; }
+.ck-content > h4 { font-size: 1.5em; font-weight: 700; margin-top: 1.33em; margin-bottom: 1.33em; }
+.ck-content > h5 { font-size: 1.25em; font-weight: 600; margin-top: 1.67em; margin-bottom: 1.67em; }
+.ck-content > h6 { font-size: 1.1em; font-weight: 600; margin-top: 2.33em; margin-bottom: 2.33em; }
 
 .ck-content > p > a {
   color: revert;

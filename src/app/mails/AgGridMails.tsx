@@ -40,6 +40,7 @@ export default function AgGridMails({ mails }: AgGridMailsProps) {
   const gridRef = useRef<AgGridReact>(null);
   const [gridApi, setGridApi] = useState<GridApi | null>(null);
   const [rowCount, setRowCount] = useState<number>(0);
+  const [selectedMail, setSelectedMail] = useState<Mail | null>(null);
 
   useEffect(() => {
     if (Array.isArray(mails)) {
@@ -117,6 +118,23 @@ export default function AgGridMails({ mails }: AgGridMailsProps) {
           return <span className="text-gray-500">{formattedDate}</span>;
         },
       },
+      {
+        headerName: "",
+        colId: "actions",
+        pinned: "right",
+        width: 120,
+        sortable: false,
+        filter: false,
+        resizable: false,
+        cellRenderer: (params: any) => (
+          <button
+            onClick={() => setSelectedMail(params.data)}
+            className="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Görüntüle
+          </button>
+        ),
+      },
     ],
     []
   );
@@ -131,6 +149,7 @@ export default function AgGridMails({ mails }: AgGridMailsProps) {
         alignItems: "center",
         padding: "12px 8px",
         overflow: "hidden",
+        cursor: "pointer",
       },
       wrapText: false,
       autoHeight: false,
@@ -157,6 +176,11 @@ export default function AgGridMails({ mails }: AgGridMailsProps) {
     [gridApi]
   );
 
+  const onRowClicked = useCallback((event: any) => {
+    // Satırın herhangi bir yerine tıklanınca mail detayını aç
+    setSelectedMail(event.data);
+  }, []);
+
   useEffect(() => {
     const handleResize = () => {
       gridApi?.sizeColumnsToFit();
@@ -164,6 +188,14 @@ export default function AgGridMails({ mails }: AgGridMailsProps) {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [gridApi]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectedMail(null);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const onExportCSV = useCallback(() => {
     gridApi?.exportDataAsCsv({
@@ -219,6 +251,7 @@ export default function AgGridMails({ mails }: AgGridMailsProps) {
           paginationPageSizeSelector={[15, 25, 50, 100]}
           onGridReady={onGridReady}
           onFilterChanged={onFilterChanged}
+          onRowClicked={onRowClicked}
           animateRows={true}
           rowSelection="multiple"
           suppressCellFocus={true}
@@ -238,6 +271,90 @@ export default function AgGridMails({ mails }: AgGridMailsProps) {
           }}
         />
       </div>
+
+      {selectedMail && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onClick={() => setSelectedMail(null)}
+        >
+          <div
+            className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Başlık */}
+            <div className="flex items-start justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
+              <div className="min-w-0">
+                <h2 className="text-lg font-semibold text-gray-800 break-words">
+                  {selectedMail.subject || "(Konu belirtilmemiş)"}
+                </h2>
+                <p className="text-sm text-gray-500 mt-0.5">
+                  {selectedMail.createdAt
+                    ? new Date(selectedMail.createdAt).toLocaleString("tr-TR")
+                    : ""}
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedMail(null)}
+                className="ml-4 text-2xl leading-none text-gray-400 hover:text-gray-600"
+                aria-label="Kapat"
+              >
+                &times;
+              </button>
+            </div>
+
+            {/* İçerik */}
+            <div className="px-6 py-4 overflow-y-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <span className="block text-xs font-medium uppercase text-gray-400">
+                    Gönderen
+                  </span>
+                  <span className="text-sm text-gray-800">
+                    {[selectedMail.firstName, selectedMail.lastName]
+                      .filter(Boolean)
+                      .join(" ") || "-"}
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-xs font-medium uppercase text-gray-400">
+                    E-posta
+                  </span>
+                  <a
+                    href={`mailto:${selectedMail.email}`}
+                    className="text-sm text-blue-600 underline hover:text-blue-800 break-all"
+                  >
+                    {selectedMail.email}
+                  </a>
+                </div>
+              </div>
+              <span className="block text-xs font-medium uppercase text-gray-400 mb-1">
+                Mesaj
+              </span>
+              <div className="text-sm text-gray-700 whitespace-pre-wrap break-words bg-gray-50 rounded-lg p-4 border border-gray-200">
+                {selectedMail.message || "(Mesaj içeriği boş)"}
+              </div>
+            </div>
+
+            {/* Alt butonlar */}
+            <div className="flex justify-end gap-2 px-6 py-3 border-t border-gray-200 bg-gray-50">
+              <a
+                href={`mailto:${selectedMail.email}?subject=${encodeURIComponent(
+                  "Re: " + (selectedMail.subject || "")
+                )}`}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+              >
+                Yanıtla
+              </a>
+              <button
+                onClick={() => setSelectedMail(null)}
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 text-sm"
+              >
+                Kapat
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

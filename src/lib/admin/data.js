@@ -47,6 +47,22 @@ export const getAllNewsletters = async () => {
   return response;
 };
 
+export const deleteNewsletter = async (id) => {
+  if (!id) {
+    throw new Error("Geçersiz abone kimliği");
+  }
+
+  const response = await fetchInstance(`/newsletter/${id}`, {
+    method: "DELETE",
+  });
+
+  if (response?.statusCode && response.statusCode >= 400) {
+    throw new Error(response.message || "Abone silinemedi");
+  }
+
+  return { success: true };
+};
+
 export const getAllStats = async () => {
   const response = await fetchInstance(
     "/admin/analytics/view-stats?period=week",

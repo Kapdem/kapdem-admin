@@ -1,5 +1,6 @@
 import { getAllNewsletters } from "@/lib/admin/data";
 import React from "react";
+import DeleteSubscriberButton from "./DeleteSubscriberButton";
 
 type NewsletterSubscriber = {
   _id: string;
@@ -55,6 +56,9 @@ export default async function page({}: Props) {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Son Güncelleme
                 </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  İşlemler
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -82,6 +86,12 @@ export default async function page({}: Props) {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {formatDate(subscriber.updatedAt)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <DeleteSubscriberButton
+                        id={subscriber._id}
+                        email={subscriber.email}
+                      />
                     </td>
                   </tr>
                 ))

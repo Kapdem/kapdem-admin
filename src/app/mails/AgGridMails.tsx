@@ -17,6 +17,9 @@ import {
   GridReadyEvent,
   FilterChangedEvent,
 } from "ag-grid-community";
+import { deleteMail } from "@/lib/editors/data";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -41,12 +44,42 @@ export default function AgGridMails({ mails }: AgGridMailsProps) {
   const [gridApi, setGridApi] = useState<GridApi | null>(null);
   const [rowCount, setRowCount] = useState<number>(0);
   const [selectedMail, setSelectedMail] = useState<Mail | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (Array.isArray(mails)) {
       setRowData(mails);
     }
   }, [mails]);
+
+  const handleDelete = useCallback(async (mail: Mail) => {
+    if (!mail?._id) return;
+    const ad =
+      [mail.firstName, mail.lastName].filter(Boolean).join(" ") || mail.email;
+    const result = await Swal.fire({
+      title: "Emin misiniz?",
+      text: `"${ad}" tarafından gönderilen mail silinecek. Bu işlem geri alınamaz.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Evet, sil!",
+      cancelButtonText: "Vazgeç",
+    });
+    if (!result.isConfirmed) return;
+
+    setDeletingId(mail._id);
+    try {
+      await deleteMail(mail._id);
+      setRowData((prev) => prev.filter((m) => m._id !== mail._id));
+      setSelectedMail((prev) => (prev?._id === mail._id ? null : prev));
+      toast.success("Mail silindi");
+    } catch (error: any) {
+      toast.error(error?.message || "Mail silinemedi");
+    } finally {
+      setDeletingId(null);
+    }
+  }, []);
 
   const columnDefs = useMemo<ColDef<Mail>[]>(
     () => [
@@ -122,17 +155,31 @@ export default function AgGridMails({ mails }: AgGridMailsProps) {
         headerName: "",
         colId: "actions",
         pinned: "right",
-        width: 120,
+        width: 175,
         sortable: false,
         filter: false,
         resizable: false,
         cellRenderer: (params: any) => (
-          <button
-            onClick={() => setSelectedMail(params.data)}
-            className="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-md hover:bg-blue-700 transition-colors"
-          >
-            Görüntüle
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedMail(params.data);
+              }}
+              className="px-2.5 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-md hover:bg-blue-700 transition-colors"
+            >
+              Görüntüle
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(params.data);
+              }}
+              className="px-2.5 py-1.5 bg-red-600 text-white text-xs font-medium rounded-md hover:bg-red-700 transition-colors"
+            >
+              Sil
+            </button>
+          </div>
         ),
       },
     ],
@@ -149,7 +196,6 @@ export default function AgGridMails({ mails }: AgGridMailsProps) {
         alignItems: "center",
         padding: "12px 8px",
         overflow: "hidden",
-        cursor: "pointer",
       },
       wrapText: false,
       autoHeight: false,
@@ -175,11 +221,6 @@ export default function AgGridMails({ mails }: AgGridMailsProps) {
     },
     [gridApi]
   );
-
-  const onRowClicked = useCallback((event: any) => {
-    // Satırın herhangi bir yerine tıklanınca mail detayını aç
-    setSelectedMail(event.data);
-  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -251,7 +292,7 @@ export default function AgGridMails({ mails }: AgGridMailsProps) {
           paginationPageSizeSelector={[15, 25, 50, 100]}
           onGridReady={onGridReady}
           onFilterChanged={onFilterChanged}
-          onRowClicked={onRowClicked}
+          onModelUpdated={(e) => setRowCount(e.api.getDisplayedRowCount())}
           animateRows={true}
           rowSelection="multiple"
           suppressCellFocus={true}
@@ -336,21 +377,32 @@ export default function AgGridMails({ mails }: AgGridMailsProps) {
             </div>
 
             {/* Alt butonlar */}
-            <div className="flex justify-end gap-2 px-6 py-3 border-t border-gray-200 bg-gray-50">
-              <a
-                href={`mailto:${selectedMail.email}?subject=${encodeURIComponent(
-                  "Re: " + (selectedMail.subject || "")
-                )}`}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
-              >
-                Yanıtla
-              </a>
+            <div className="flex items-center justify-between gap-2 px-6 py-3 border-t border-gray-200 bg-gray-50">
               <button
-                onClick={() => setSelectedMail(null)}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 text-sm"
+                onClick={() => handleDelete(selectedMail)}
+                disabled={deletingId === selectedMail._id}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Kapat
+                {deletingId === selectedMail._id ? "Siliniyor..." : "Sil"}
               </button>
+              <div className="flex gap-2">
+                <a
+                  href={`mailto:${
+                    selectedMail.email
+                  }?subject=${encodeURIComponent(
+                    "Re: " + (selectedMail.subject || "")
+                  )}`}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                >
+                  Yanıtla
+                </a>
+                <button
+                  onClick={() => setSelectedMail(null)}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 text-sm"
+                >
+                  Kapat
+                </button>
+              </div>
             </div>
           </div>
         </div>

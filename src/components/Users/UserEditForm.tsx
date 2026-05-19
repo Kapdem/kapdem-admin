@@ -286,7 +286,7 @@ export default function UserEditForm({ userId }: { userId: string }) {
                 name="profession"
                 value={form.profession}
                 onChange={handleChange}
-                placeholder="Örn: Kardiyoloji"
+                placeholder="Örn: Siyaset Bilimi"
                 className="pl-10 pr-3 border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all bg-white shadow-sm"
                 autoComplete="off"
               />
@@ -368,7 +368,7 @@ export default function UserEditForm({ userId }: { userId: string }) {
             name="about"
             value={form.about}
             onChange={(e) => setForm({ ...form, about: e.target.value })}
-            placeholder="Yazar hakkında kısa bilgi..."
+            placeholder="Hakkınızda kısa bilgi..."
             rows={4}
             className="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all bg-white shadow-sm resize-vertical"
           />

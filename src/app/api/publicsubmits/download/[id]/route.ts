@@ -1,62 +1,145 @@
 import { publicSubmitById } from "@/lib/posts/data";
 import { NextResponse } from "next/server";
-import { Document, Packer, Paragraph, TextRun } from "docx";
+import { Document, Packer, Paragraph, TextRun, ImageRun } from "docx";
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // Fetch submission by ID
     const submission = await publicSubmitById(id);
+    console.log("Fetched submission for download:", submission);
 
     if (!submission) {
       return NextResponse.json(
         { error: "Submission not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    // Create a new Word document
+    const buildTextParagraph = (label: string, value: string | undefined) =>
+      new Paragraph({
+        children: [
+          new TextRun({ text: `${label}: `, bold: true, size: 24 }),
+          new TextRun({ text: value || "Belirtilmedi", size: 24 }),
+        ],
+        spacing: { after: 120 },
+      });
+
+    const imageBaseUrl =
+      process.env.NEXT_PUBLIC_IMAGE_BASE_URL ||
+      "https://kapdem-org.s3.eu-north-1.amazonaws.com";
+
+    const rawPhoto =
+      typeof submission.photo === "string" ? submission.photo.trim() : "";
+
+    const photoUrl = rawPhoto
+      ? /^https?:\/\//i.test(rawPhoto)
+        ? rawPhoto
+        : /(^|\/)(public-submissions|uploads|images)\//i.test(rawPhoto)
+          ? `${imageBaseUrl}/${rawPhoto.replace(/^\/+/, "")}`
+          : /(^|\/)[^.\/]+\.s3\.[^.\/]+\.amazonaws\.com\//i.test(rawPhoto) ||
+              rawPhoto.startsWith("kapdem-org.s3.eu-north-1.amazonaws.com")
+            ? `https://${rawPhoto.replace(/^\/+/, "")}`
+            : `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/${rawPhoto.replace(/^\/+/, "")}`
+      : "";
+
+    const docChildren = [
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: submission.title || "Başlık Yok",
+            bold: true,
+            size: 32,
+          }),
+        ],
+        alignment: "center",
+        spacing: { after: 240 },
+      }),
+      buildTextParagraph(
+        "Yazar",
+        `${submission.firstName || ""} ${submission.lastName || ""}`.trim(),
+      ),
+      buildTextParagraph("E-posta", submission.email),
+      buildTextParagraph("Telefon", submission.phone),
+      buildTextParagraph("Kurum", submission.institution),
+      buildTextParagraph("Durum", submission.status),
+      buildTextParagraph("Gönderim Tarihi", submission.submittedAt),
+      buildTextParagraph("IP Adresi", submission.ipAddress),
+      buildTextParagraph("Tarayıcı", submission.userAgent),
+      new Paragraph({
+        children: [new TextRun({ text: "Özet", bold: true, size: 28 })],
+        spacing: { before: 180, after: 120 },
+      }),
+      new Paragraph({
+        children: [
+          new TextRun({ text: submission.summary || "Özet yok", size: 24 }),
+        ],
+        spacing: { after: 180 },
+      }),
+      new Paragraph({
+        children: [
+          new TextRun({ text: "Kısa Biyografi", bold: true, size: 28 }),
+        ],
+        spacing: { before: 180, after: 120 },
+      }),
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: submission.biografi || "Biyografi yok",
+            size: 24,
+          }),
+        ],
+        spacing: { after: 180 },
+      }),
+      new Paragraph({
+        children: [new TextRun({ text: "İçerik", bold: true, size: 28 })],
+        spacing: { before: 180, after: 120 },
+      }),
+      new Paragraph({
+        children: [
+          new TextRun({ text: submission.content || "İçerik yok", size: 24 }),
+        ],
+        spacing: { after: 180 },
+      }),
+    ];
+
+    if (photoUrl) {
+      try {
+        const photoResponse = await fetch(photoUrl);
+        if (photoResponse.ok) {
+          const photoBuffer = Buffer.from(await photoResponse.arrayBuffer());
+          const imageType = photoResponse.headers
+            .get("content-type")
+            ?.includes("jpeg")
+            ? "jpg"
+            : "png";
+          docChildren.push(
+            new Paragraph({
+              children: [
+                new ImageRun({
+                  data: photoBuffer,
+                  type: imageType,
+                  transformation: { width: 420, height: 320 },
+                }),
+              ],
+              spacing: { before: 180, after: 180 },
+            }),
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching photo for document:", error);
+      }
+    }
+
     const doc = new Document({
       sections: [
         {
           properties: {},
-          children: [
-            // Title
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: submission.title || "Başlık Yok",
-                  bold: true,
-                  size: 32, // 16px
-                }),
-              ],
-              alignment: "center",
-            }),
-            // Summary
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: submission.summary || "Özet Yok",
-                  size: 32, // 16px
-                }),
-              ],
-              spacing: { before: 300, after: 300 }, // 15-point spacing
-            }),
-            // Content
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: submission.content || "İçerik Yok",
-                  size: 32, // 16px
-                }),
-              ],
-              spacing: { before: 300, after: 300 }, // 15-point spacing
-            }),
-          ],
+          children: docChildren,
         },
       ],
     });
@@ -82,7 +165,7 @@ export async function GET(
     console.error("Error generating Word document:", error);
     return NextResponse.json(
       { error: "Failed to generate document" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

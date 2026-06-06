@@ -81,21 +81,23 @@ export default async function Page({ params }: Props) {
       : "Belirtilmemiş");
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-10">
-      <div className="flex justify-between items-start mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">{submit.title}</h1>
-        <div className={`px-3 py-1 rounded-full ${bg} ${color}`}>
+    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-10 overflow-hidden">
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
+        <h1 className="text-2xl font-bold text-gray-800 break-words max-w-full sm:max-w-[70%]">
+          {submit.title}
+        </h1>
+        <div className={`px-3 py-1 rounded-full ${bg} ${color} shrink-0`}>
           <span className="text-sm font-medium">{label}</span>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div className="space-y-4">
+        <div className="space-y-4 min-w-0">
           <div>
             <h2 className="text-sm font-medium text-gray-500">
               Yazar Bilgileri
             </h2>
-            <div className="mt-2 bg-gray-50 p-4 rounded-lg">
+            <div className="mt-2 bg-gray-50 p-4 rounded-lg break-words">
               <p className="text-gray-700 font-medium">
                 {submit.firstName} {submit.lastName}
               </p>
@@ -107,52 +109,63 @@ export default async function Page({ params }: Props) {
 
           <div>
             <h2 className="text-sm font-medium text-gray-500">Kategori</h2>
-            <p className="mt-2 text-gray-700">{categoryLabel}</p>
+            <p className="mt-2 text-gray-700 break-words">{categoryLabel}</p>
           </div>
 
           <div>
             <h2 className="text-sm font-medium text-gray-500">
               Gönderim Bilgileri
             </h2>
-            <div className="mt-2 text-gray-700">
+            <div className="mt-2 text-gray-700 break-words">
               <p>Tarih: {formatDate(submit.submittedAt)}</p>
               <p>IP Adresi: {submit.ipAddress}</p>
-              <p>Tarayıcı: {submit.userAgent}</p>
+              <p className="break-all text-xs text-gray-500 md:text-sm md:text-gray-700">
+                Tarayıcı: {submit.userAgent}
+              </p>
             </div>
           </div>
         </div>
 
-        <div>
+        <div className="min-w-0">
           <h2 className="text-sm font-medium text-gray-500">
             Yazarın Kısa Biyografisi
           </h2>
           <div className="mt-2 bg-gray-50 p-4 rounded-lg">
-            <p className="text-gray-700 whitespace-pre-wrap">
+            <p className="text-gray-700 whitespace-pre-wrap break-words">
               {submit.biografi}
             </p>
           </div>
         </div>
       </div>
+
       <div className="mb-8">
         <h2 className="text-lg font-semibold text-gray-800 mb-3">Özet</h2>
         <div className="bg-gray-50 p-4 rounded-lg">
-          <p className="text-gray-700 whitespace-pre-wrap">{submit.summary}</p>
+          <p className="text-gray-700 whitespace-pre-wrap break-words">
+            {submit.summary}
+          </p>
         </div>
       </div>
+
       <div>
         <h2 className="text-lg font-semibold text-gray-800 mb-3">İçerik</h2>
         <div className="bg-gray-50 p-4 rounded-lg">
-          <p className="text-gray-700 whitespace-pre-wrap">{submit.content}</p>
+          <p className="text-gray-700 whitespace-pre-wrap break-words">
+            {submit.content}
+          </p>
         </div>
       </div>
-      <div className="mt-8 flex justify-between items-center ">
+
+      <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-between items-center ">
         <Link
           href="/publicsubmits"
-          className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+          className="w-full sm:w-auto text-center px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
         >
           Listeye Dön
         </Link>
-        <PublicSubmitStatusButton id={id} initialStatus={status} />
+        <div className="w-full sm:w-auto flex justify-end">
+          <PublicSubmitStatusButton id={id} initialStatus={status} />
+        </div>
       </div>
     </div>
   );

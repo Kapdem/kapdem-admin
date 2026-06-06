@@ -106,6 +106,8 @@ export default function EditPaper({
   const [imagePreview, setImagePreview] = useState<string | null>(
     data?.coverImage || data?.featuredImage || null,
   );
+  // Kullanıcı görseli bilerek kaldırdı mı? (auto-restore effect'ini engellemek için)
+  const [imageRemoved, setImageRemoved] = useState(false);
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(
     typeof data?.audioFile === "string" ? data.audioFile : null,
@@ -188,17 +190,24 @@ export default function EditPaper({
     }
   }, [titleEn, data?.translations?.en?.slug]);
 
-  // Set image preview from existing data
+  // Set image preview from existing data.
+  // imageRemoved kontrolü şart: yoksa kullanıcı görseli kaldırınca bu effect
+  // imagePreview=null'ı görüp anında eski görseli geri koyuyor (ekran "saçmalıyor").
   useEffect(() => {
-    if ((data?.coverImage || data?.featuredImage) && !imagePreview) {
+    if (
+      !imageRemoved &&
+      (data?.coverImage || data?.featuredImage) &&
+      !imagePreview
+    ) {
       setImagePreview(data.coverImage || data.featuredImage);
     }
-  }, [data, imagePreview]);
+  }, [data, imagePreview, imageRemoved]);
 
   // Handle image upload with react-dropzone
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     setFeaturedImage(file);
+    setImageRemoved(false);
 
     // Create preview
     const previewUrl = URL.createObjectURL(file);
@@ -222,6 +231,7 @@ export default function EditPaper({
     }
     setFeaturedImage(null);
     setImagePreview(null);
+    setImageRemoved(true);
   };
 
   // Handle form submission
@@ -249,7 +259,11 @@ export default function EditPaper({
       authorId,
       categories: selectedCategories,
       ...(featuredImage && { featuredImage }),
-      ...(!featuredImage && imagePreview && { coverImage: imagePreview }),
+      // Görsel kaldırıldıysa boş string ile sil; yoksa mevcut görseli koru
+      ...(!featuredImage && imageRemoved && { coverImage: "" }),
+      ...(!featuredImage &&
+        !imageRemoved &&
+        imagePreview && { coverImage: imagePreview }),
       ...(publishedAt && { publishedAt: new Date(publishedAt).toISOString() }),
       ...(audioFile ? { audioFile } : removeAudio ? { audioFile: null } : {}),
     };

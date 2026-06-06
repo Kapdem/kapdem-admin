@@ -68,9 +68,12 @@ export default function AddSpecialFilePage({}: Props) {
   const initialValues = {
     titleTr: "",
     excerptTr: "",
+    titleEn: "",
+    excerptEn: "",
     status: "publish",
     accessTier: "FREE",
     contentTr: "",
+    contentEn: "",
     coverImage: null as File | null,
     authorId: "",
   };
@@ -103,6 +106,16 @@ export default function AddSpecialFilePage({}: Props) {
       accessTier: values.accessTier,
       coverImage: values.coverImage,
     };
+
+    // İngilizce çeviri yalnızca İngilizce başlık girildiyse eklenir (opsiyonel)
+    if (values.titleEn && values.titleEn.trim()) {
+      specialFileData.translations.en = {
+        title: values.titleEn,
+        slug: generateSlug(values.titleEn, true),
+        content: values.contentEn,
+        excerpt: values.excerptEn,
+      };
+    }
 
     // Opsiyonel alanlar
     if (values.authorId) specialFileData.authorId = values.authorId;
@@ -137,13 +150,13 @@ export default function AddSpecialFilePage({}: Props) {
       >
         {({ setFieldValue, isSubmitting, values }) => (
           <Form className="space-y-6">
-            {/* Başlık */}
+            {/* Türkçe Başlık */}
             <div>
               <label
                 htmlFor="titleTr"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Başlık
+                Türkçe Başlık
               </label>
               <Field
                 type="text"
@@ -160,13 +173,31 @@ export default function AddSpecialFilePage({}: Props) {
               />
             </div>
 
-            {/* Kısa Özet */}
+            {/* İngilizce Başlık */}
+            <div>
+              <label
+                htmlFor="titleEn"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                İngilizce Başlık{" "}
+                <span className="text-gray-400 font-normal">(opsiyonel)</span>
+              </label>
+              <Field
+                type="text"
+                id="titleEn"
+                name="titleEn"
+                placeholder="Title (English)"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Türkçe Kısa Özet */}
             <div>
               <label
                 htmlFor="excerptTr"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Kısa Özet
+                Türkçe Kısa Özet
               </label>
               <Field
                 as="textarea"
@@ -180,6 +211,25 @@ export default function AddSpecialFilePage({}: Props) {
                 name="excerptTr"
                 component="div"
                 className="text-red-500 text-xs mt-1"
+              />
+            </div>
+
+            {/* İngilizce Kısa Özet */}
+            <div>
+              <label
+                htmlFor="excerptEn"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                İngilizce Kısa Özet{" "}
+                <span className="text-gray-400 font-normal">(opsiyonel)</span>
+              </label>
+              <Field
+                as="textarea"
+                id="excerptEn"
+                name="excerptEn"
+                placeholder="Short summary (English)"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                rows={2}
               />
             </div>
 
@@ -281,10 +331,10 @@ export default function AddSpecialFilePage({}: Props) {
               )}
             </div>
 
-            {/* İçerik */}
+            {/* Türkçe İçerik */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                İçerik
+                Türkçe İçerik
               </label>
               <div className="bg-white border border-gray-300 rounded-md p-2">
                 <ContentEditor
@@ -297,6 +347,20 @@ export default function AddSpecialFilePage({}: Props) {
                 component="div"
                 className="text-red-500 text-xs mt-1"
               />
+            </div>
+
+            {/* İngilizce İçerik */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                İngilizce İçerik{" "}
+                <span className="text-gray-400 font-normal">(opsiyonel)</span>
+              </label>
+              <div className="bg-white border border-gray-300 rounded-md p-2">
+                <ContentEditor
+                  value={values.contentEn}
+                  onChange={(data) => setFieldValue("contentEn", data)}
+                />
+              </div>
             </div>
 
             {/* Kapak Görseli - Modern Drag & Drop */}

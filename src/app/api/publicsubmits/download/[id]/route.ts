@@ -47,29 +47,66 @@ export async function GET(
             : `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/${rawPhoto.replace(/^\/+/, "")}`
       : "";
 
+    // Fotoğrafı önce indir ki belgenin en üstüne koyabilelim.
+    // (kapdem copy PDF düzeniyle aynı: görsel başta → başlık → yazar·tarih → içerik)
+    let imageParagraph: Paragraph | null = null;
+    if (photoUrl) {
+      try {
+        const photoResponse = await fetch(photoUrl);
+        if (photoResponse.ok) {
+          const photoBuffer = Buffer.from(await photoResponse.arrayBuffer());
+          const imageType = photoResponse.headers
+            .get("content-type")
+            ?.includes("jpeg")
+            ? "jpg"
+            : "png";
+          imageParagraph = new Paragraph({
+            children: [
+              new ImageRun({
+                data: photoBuffer,
+                type: imageType,
+                transformation: { width: 420, height: 320 },
+              }),
+            ],
+            alignment: "center",
+            spacing: { after: 240 },
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching photo for document:", error);
+      }
+    }
+
     const docChildren = [
+      // 1. Fotoğraf (en üstte)
+      ...(imageParagraph ? [imageParagraph] : []),
+      // 2. Başlık
       new Paragraph({
         children: [
           new TextRun({
             text: submission.title || "Başlık Yok",
             bold: true,
             size: 32,
+            color: "002C54",
           }),
         ],
         alignment: "center",
         spacing: { after: 240 },
       }),
+      // 3. Yazar · Gönderim Tarihi
       buildTextParagraph(
         "Yazar",
         `${submission.firstName || ""} ${submission.lastName || ""}`.trim(),
       ),
+      buildTextParagraph("Gönderim Tarihi", submission.submittedAt),
+      // 4. Diğer iletişim / teknik bilgiler
       buildTextParagraph("E-posta", submission.email),
       buildTextParagraph("Telefon", submission.phone),
       buildTextParagraph("Kurum", submission.institution),
       buildTextParagraph("Durum", submission.status),
-      buildTextParagraph("Gönderim Tarihi", submission.submittedAt),
       buildTextParagraph("IP Adresi", submission.ipAddress),
       buildTextParagraph("Tarayıcı", submission.userAgent),
+      // 5. İçerik bölümleri
       new Paragraph({
         children: [new TextRun({ text: "Özet", bold: true, size: 28 })],
         spacing: { before: 180, after: 120 },
@@ -106,34 +143,6 @@ export async function GET(
         spacing: { after: 180 },
       }),
     ];
-
-    if (photoUrl) {
-      try {
-        const photoResponse = await fetch(photoUrl);
-        if (photoResponse.ok) {
-          const photoBuffer = Buffer.from(await photoResponse.arrayBuffer());
-          const imageType = photoResponse.headers
-            .get("content-type")
-            ?.includes("jpeg")
-            ? "jpg"
-            : "png";
-          docChildren.push(
-            new Paragraph({
-              children: [
-                new ImageRun({
-                  data: photoBuffer,
-                  type: imageType,
-                  transformation: { width: 420, height: 320 },
-                }),
-              ],
-              spacing: { before: 180, after: 180 },
-            }),
-          );
-        }
-      } catch (error) {
-        console.error("Error fetching photo for document:", error);
-      }
-    }
 
     const doc = new Document({
       sections: [

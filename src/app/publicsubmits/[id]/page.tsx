@@ -13,7 +13,7 @@ export default async function Page({ params }: Props) {
   const awaitedParams = await params;
   const { id } = awaitedParams;
 
-  const submit = await publicSubmitById("68c0884a28821db0bdefe7ab");
+  const submit = await publicSubmitById(id);
 
   if (!submit) {
     return (

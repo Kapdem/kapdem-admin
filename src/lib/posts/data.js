@@ -3,11 +3,15 @@
 import { fetchInstance } from "@/utils/fetch";
 
 export const getAllPosts = async (options = {}) => {
-  const { page = 1, limit = 50 } = options;
+  const { page = 1, limit = 50, search } = options;
   const params = new URLSearchParams({
     page: String(page),
     limit: String(limit),
   });
+  // Arama terimini backend'e gönder (DB tarafında tüm post'larda aransın)
+  if (search && String(search).trim()) {
+    params.set("search", String(search).trim());
+  }
 
   const response = await fetchInstance(`/admin/posts?${params.toString()}`, {
     method: "GET",

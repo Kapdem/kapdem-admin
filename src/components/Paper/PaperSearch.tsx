@@ -21,6 +21,8 @@ export default function PaperSearch() {
     } else {
       params.delete("search");
     }
+    // Yeni aramada ilk sayfaya dön (aksi halde aralık dışı sayfada sonuç görünmez)
+    params.delete("page");
 
     replace(`${pathname}?${params.toString()}`);
   };
@@ -48,6 +50,7 @@ export default function PaperSearch() {
               setSearchTerm("");
               const params = new URLSearchParams(searchParams);
               params.delete("search");
+              params.delete("page");
               replace(`${pathname}?${params.toString()}`);
             }}
             className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"

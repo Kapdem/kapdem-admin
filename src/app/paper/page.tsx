@@ -19,7 +19,11 @@ export default async function page({ searchParams }: Props) {
   try {
     const sp = await (searchParams as any);
     const currentPage = Math.max(1, Number(sp?.page || 1));
-    const postsResponse = await getAllPosts({ page: currentPage, limit: 50 });
+    const postsResponse = await getAllPosts({
+      page: currentPage,
+      limit: 50,
+      search: sp?.search ? String(sp.search) : undefined,
+    });
 
     let posts: any[] = [];
     let total = 0;
@@ -46,7 +50,6 @@ export default async function page({ searchParams }: Props) {
       total = posts.length;
     }
 
-    const searchTerm = sp?.search ? String(sp.search).toLowerCase() : undefined;
     const accessTier = sp?.tier || undefined;
     const viewType = sp?.view || "table";
     const totalPages = Math.max(1, Math.ceil(total / limit));
@@ -62,21 +65,8 @@ export default async function page({ searchParams }: Props) {
 
     let filteredPosts = Array.isArray(posts) ? posts : [];
 
-    if (searchTerm && filteredPosts.length > 0) {
-      filteredPosts = filteredPosts.filter((post: any) => {
-        // Çoklu dil desteği: önce translations.tr.title, sonra eski title
-        const title = post.translations?.tr?.title || post.title || "";
-        const authorName = (
-          (post.author?.firstName || "") +
-          " " +
-          (post.author?.lastName || "")
-        ).trim();
-        return (
-          title.toLowerCase().includes(searchTerm) ||
-          authorName.toLowerCase().includes(searchTerm)
-        );
-      });
-    }
+    // Arama artık backend'de (tüm post'larda) yapılıyor; burada tekrar filtre
+    // uygulamıyoruz, aksi halde sadece EN başlık/yazar ile eşleşenler elenebilir.
 
     if (accessTier && filteredPosts.length > 0) {
       filteredPosts = filteredPosts.filter(

@@ -14,6 +14,7 @@ export default async function Page({ params }: Props) {
   const { id } = awaitedParams;
 
   const submit = await publicSubmitById(id);
+  console.log("Fetched submit:", submit);
 
   if (!submit) {
     return (
@@ -71,6 +72,13 @@ export default async function Page({ params }: Props) {
 
   const status = submit.status || "pending";
   const { color, bg, label } = statusMap[status];
+  const categoryKey = submit.category || "";
+  const categoryLabel =
+    submit.categoryLabel ||
+    categoryMap[categoryKey] ||
+    (typeof categoryKey === "string" && categoryKey.trim().length > 0
+      ? categoryKey
+      : "Belirtilmemiş");
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-10">
@@ -99,9 +107,7 @@ export default async function Page({ params }: Props) {
 
           <div>
             <h2 className="text-sm font-medium text-gray-500">Kategori</h2>
-            <p className="mt-2 text-gray-700">
-              {categoryMap[submit.category] || "Belirtilmemiş"}
-            </p>
+            <p className="mt-2 text-gray-700">{categoryLabel}</p>
           </div>
 
           <div>

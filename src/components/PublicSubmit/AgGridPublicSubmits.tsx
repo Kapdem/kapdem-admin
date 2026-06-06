@@ -164,9 +164,7 @@ export default function AgGridPublicSubmits({
         cellRenderer: (params: any) => {
           const category = params.value || "";
           return (
-            <div className="text-gray-700">
-              {categoryMap[category] || "Belirtilmemiş"}
-            </div>
+            <div className="text-gray-700">{category || "Belirtilmemiş"}</div>
           );
         },
         filter: "agTextColumnFilter",
@@ -222,7 +220,7 @@ export default function AgGridPublicSubmits({
           const formattedDate = date.toLocaleDateString("tr-TR");
           const now = new Date();
           const daysDiff = Math.floor(
-            (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24)
+            (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24),
           );
           let dateLabel = "";
           if (daysDiff === 0) dateLabel = "Bugün";
@@ -298,7 +296,7 @@ export default function AgGridPublicSubmits({
                     await deletePublicSubmit(params.value);
                     toast.success("Başvuru başarıyla silindi.");
                     setRowData((prev) =>
-                      prev.filter((row) => row._id !== params.value)
+                      prev.filter((row) => row._id !== params.value),
                     );
                   } catch (err: any) {
                     toast.error(err?.message || "Silme işlemi başarısız oldu.");
@@ -312,7 +310,7 @@ export default function AgGridPublicSubmits({
         ),
       },
     ],
-    []
+    [],
   );
 
   const defaultColDef = useMemo(
@@ -330,7 +328,7 @@ export default function AgGridPublicSubmits({
       autoHeight: false,
       headerClass: "ag-header-cell-custom",
     }),
-    []
+    [],
   );
 
   const onGridReady = useCallback(
@@ -339,7 +337,7 @@ export default function AgGridPublicSubmits({
       params.api.sizeColumnsToFit();
       setRowCount(params.api.getDisplayedRowCount());
     },
-    [rowData]
+    [rowData],
   );
 
   const onFilterChanged = useCallback(
@@ -348,7 +346,7 @@ export default function AgGridPublicSubmits({
         setRowCount(gridApi.getDisplayedRowCount());
       }
     },
-    [gridApi]
+    [gridApi],
   );
 
   useEffect(() => {

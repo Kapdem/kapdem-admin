@@ -140,17 +140,61 @@ export const upcomingEvents = async () => {
   }
 };
 
-export const publicSubmitList = async () => {
-  const response = await fetchInstance("/public-submit/admin/list");
-  return response.submissions;
+/**
+ * @param {Record<string, any>} [submission]
+ * @returns {Record<string, any>}
+ */
+const normalizePublicSubmit = (submission = {}) => {
+  const categorySlug =
+    submission.category ??
+    submission.categorySlug ??
+    submission.categoryId ??
+    submission.category_name ??
+    submission.categoryName ??
+    submission.categoryValue ??
+    (Array.isArray(submission.categories)
+      ? submission.categories[0]
+      : undefined);
+
+  const categoryLabel =
+    submission.categoryLabel ??
+    submission.category_name ??
+    submission.categoryName ??
+    submission.category_display ??
+    submission.categoryDisplay ??
+    (typeof submission.category === "object" && submission.category
+      ? submission.category.name || submission.category.label
+      : undefined) ??
+    categorySlug ??
+    "";
+
+  return {
+    ...submission,
+    category: categorySlug ?? "",
+    categoryLabel,
+  };
 };
 
+/** @returns {Promise<Record<string, any>[]>} */
+export const publicSubmitList = async () => {
+  const response = await fetchInstance("/public-submit/admin/list");
+  const submissions = Array.isArray(response?.submissions)
+    ? response.submissions
+    : Array.isArray(response)
+      ? response
+      : [];
+
+  return submissions.map(normalizePublicSubmit);
+};
+
+/** @param {string} id @returns {Promise<Record<string, any> | null>} */
 export const publicSubmitById = async (id) => {
   try {
     const response = await fetchInstance(`/public-submit/admin/${id}`, {
       method: "GET",
     });
-    return response;
+
+    return normalizePublicSubmit(response);
   } catch (error) {
     console.error("Error fetching public submit by ID:", error);
     return null;

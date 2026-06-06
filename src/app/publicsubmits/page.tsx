@@ -7,6 +7,7 @@ type Props = {};
 
 export default async function Page({}: Props) {
   const submits = await publicSubmitList();
+  console.log("Fetched submits:", submits);
 
   return (
     <div className="p-4 md:p-8">

@@ -160,7 +160,9 @@ export default function EditEvent({ res }: Props) {
       .replace(/ü/g, "u")
       .replace(/[^a-z0-9\s-]/g, "")
       .trim()
-      .replace(/\s+/g, "-");
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-+|-+$/g, "");
 
     if (isEnglish) {
       slug = slug

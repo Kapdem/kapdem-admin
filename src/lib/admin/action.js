@@ -12,12 +12,18 @@ const generateFileName = () => {
   return `${hex.slice(0, 4)}-${hex.slice(4, 8)}-${hex.slice(8, 12)}`;
 };
 export async function getSignedURL(filename, type) {
+  // Netlify "AWS_ACCESS_KEY_ID" / "AWS_SECRET_ACCESS_KEY" isimlerini rezerve ettiği
+  // icin ozel isimli degiskenler kullaniyoruz (Netlify env'de secret olarak tanimla).
+  const accessKeyId = process.env.KAPDEM_AWS_ACCESS_KEY_ID;
+  const secretAccessKey = process.env.KAPDEM_AWS_SECRET_ACCESS_KEY;
+  if (!accessKeyId || !secretAccessKey) {
+    throw new Error(
+      "S3 kimlik bilgileri eksik: KAPDEM_AWS_ACCESS_KEY_ID / KAPDEM_AWS_SECRET_ACCESS_KEY tanimli degil (Netlify env).",
+    );
+  }
   const s3 = new S3Client({
     region: "eu-central-1",
-    credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    },
+    credentials: { accessKeyId, secretAccessKey },
   });
 
   const putObjectCommand = new PutObjectCommand({
